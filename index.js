@@ -64,9 +64,32 @@ function PlayFairEncrypt(plainText, cipherText, key) {
 
   const newArr = [];
   while (keyArray.length) newArr.push(keyArray.splice(0, 5));
-  keyArray = newArr;
+  keyArray = [...newArr];
 
   console.log("keyArray: ", keyArray);
+  console.log("plainText:", plainText);
+
+  for(let i = 0 ; i< keyArray.length ; i++){
+    for(let j = 0 ; j< plainText.length; j++){
+      if(keyArray[i].indexOf(plainText[j]) !== -1){
+        const index = keyArray[i].indexOf(plainText[j])
+        if(index + 1 > keyArray[i].length -1 ){
+          plainText[j] = keyArray[i][0];
+        }else{
+          plainText[j] = keyArray[i][index+1]
+        }
+      }
+    }
+
+
+  }
+
+  const newArrayKey = [];
+  for(let i = 0 ; i < keyArray.length ; i++){
+    const temp = [];
+    
+  }
+  console.log("plainText:", plainText);
 }
 
 // function BruteForce(plainText) {
