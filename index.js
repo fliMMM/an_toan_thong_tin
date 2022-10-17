@@ -309,11 +309,14 @@ function HillEncrypt(plainText, cipherText, key) {
   while (plainText.length) newPlainText.push(plainText.splice(0, 3));
   plainText = [...newPlainText];
 
-  if(plainText[plainText.length -1].length < 3){
-    const lastLetter = plainText[plainText.length -1][plainText[plainText.length -1].length -1]
+  if (plainText[plainText.length - 1].length < 3) {
+    const lastLetter =
+      plainText[plainText.length - 1][
+        plainText[plainText.length - 1].length - 1
+      ];
     //console.log(lastLetter);
-    for(let i = 0 ; i <= 3 - plainText[plainText.length -1].length; i++ ){
-      plainText[plainText.length -1].push(lastLetter)
+    for (let i = 0; i <= 3 - plainText[plainText.length - 1].length; i++) {
+      plainText[plainText.length - 1].push(lastLetter);
     }
   }
 
@@ -325,8 +328,6 @@ function HillEncrypt(plainText, cipherText, key) {
       plainText[i][j] = HILLLETTERS.indexOf(plainText[i][j]);
     }
   }
-
-  
 
   //encrypt
   const num_result = [];
@@ -493,7 +494,7 @@ function VernamEncrypt(plainText, cipherText, key) {
   const newKey = [];
   //to bin
   for (let i = 0; i < plainText.length; i++) {
-    newPlainText.push(convertToBin(plainText[i]));
+    newPlainText.push(convertToBin(plainText[i]), 5);
   }
   for (let i = 0; i < plainText.length; i++) {
     newPlainText[i] = newPlainText[i].split("");
@@ -533,10 +534,10 @@ function VernamDecrypt(plainText, cipherText, key) {
   key = key.split("");
   const newCipherText = [];
   const newKey = [];
-  
+
   //to bin
   for (let i = 0; i < cipherText.length; i++) {
-    newCipherText.push(convertToBin(cipherText[i]));
+    newCipherText.push(convertToBin(cipherText[i]), 5);
   }
   for (let i = 0; i < cipherText.length; i++) {
     newCipherText[i] = newCipherText[i].split("");
@@ -583,7 +584,7 @@ function XOR(x, y) {
   if (x === "1" && y === "1") return 0;
 }
 
-function convertToBin(letter) {
+function convertToBin(letter, num_bits) {
   let index = HILLLETTERS.indexOf(letter);
   if (index === 0) return "00000";
   const bin = [];
@@ -593,7 +594,7 @@ function convertToBin(letter) {
   }
   bin.push("1");
 
-  while (bin.length < 5) {
+  while (bin.length < num_bits) {
     bin.push("0");
   }
 
@@ -613,6 +614,98 @@ function binToDecimal(numbers) {
   return sum;
 }
 
+const hoanViKhoiTao = [];
+let first = 57;
+for (let j = 0; j < 8; j++) {
+  let linhtinh = first;
+  for (let i = 0; i < 8; i++) {
+    hoanViKhoiTao.push(linhtinh);
+    linhtinh -= 8;
+  }
+  if (first >= 63) {
+    first = 54;
+  }
+  first += 2;
+}
+
+const hoanViKetThuc = [
+  39, 7, 47, 15, 55, 23, 63, 31, 38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13,
+  53, 21, 61, 29, 36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27,
+  34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25, 32, 0, 40, 8, 48,
+  16, 56, 24,
+];
+function DesEncrypt(plainText, cipherText, key) {
+  plainText = plainText.split("");
+  const newPlainText = [];
+  while (plainText.length) newPlainText.push(plainText.splice(0, 8));
+  plainText = [...newPlainText];
+
+  if (plainText[plainText.length - 1].length < 8) {
+    const lastLetter =
+      plainText[plainText.length - 1][
+        plainText[plainText.length - 1].length - 1
+      ];
+    //console.log(lastLetter);
+    const length = 8 - plainText[plainText.length - 1].length;
+    for (let i = 0; i < length; i++) {
+      //console.log(i);
+      plainText[plainText.length - 1].push(lastLetter);
+    }
+  }
+
+  // //convert to number
+  // const num_plainText = [];
+  // for (let i = 0; i < plainText.length; i++) {
+  //   let temp = [];
+  //   for (let j = 0; j < plainText[i].length; j++) {
+  //     temp.push(HILLLETTERS.indexOf(plainText[i][j]));
+  //   }
+  //   num_plainText.push(temp);
+  //   temp = [];
+  // }
+
+  //convert to bin
+  for (let i = 0; i < plainText.length; i++) {
+    for (let j = 0; j < plainText[i].length; j++) {
+      plainText[i][j] = convertToBin(plainText[i][j], 8);
+    }
+  }
+
+  //chuyển sang mảng 2 chiều
+  let _newPlainText = [];
+  for (let i = 0; i < plainText.length; i++) {
+    for (let j = 0; j < plainText[i].length; j++) {
+      const temp = plainText[i][j].split("");
+      for (let k = 0; k < temp.length; k++) {
+        _newPlainText.push(temp[k]);
+      }
+    }
+  }
+
+  //test với 64 bit đầu thôi
+  _newPlainText = convertTo2DimensionArray(_newPlainText, 64);
+  console.log(_newPlainText);
+  
+  //hoán vị khởi tạo plaiText
+  let __newPlainText = [];
+  for(let i = 0 ; i < hoanViKhoiTao.length ; i++){
+    __newPlainText.push(_newPlainText[0][hoanViKhoiTao[i]])
+  }
+
+  __newPlainText = convertTo2DimensionArray(__newPlainText, 32)
+  
+}
+
+function DesDecrypt(plainText, cipherText, key) {}
+
+function subKeyGenerate(key) {}
+
+function convertTo2DimensionArray(array, length_per_array){
+  const newArray = []
+  while (array.length) newArray.push(array.splice(0, length_per_array));
+  return newArray;
+}
+
 function Encrypt(plainText, cipherText, key) {
   switch (types.value) {
     case "Caesar":
@@ -629,6 +722,9 @@ function Encrypt(plainText, cipherText, key) {
       break;
     case "Vernam":
       VernamEncrypt(plainText, cipherText, key);
+      break;
+    case "Des":
+      DesEncrypt(plainText, cipherText, key);
       break;
     default:
       console.log("nothing");
@@ -652,6 +748,9 @@ function Decrypt(plainText, cipherText, key) {
       break;
     case "Vernam":
       VernamDecrypt(plainText, cipherText, key);
+      break;
+    case "Des":
+      DesDecrypt(plainText, cipherText, key);
       break;
     default:
       console.log("nothing");
