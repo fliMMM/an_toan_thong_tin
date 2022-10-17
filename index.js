@@ -309,12 +309,24 @@ function HillEncrypt(plainText, cipherText, key) {
   while (plainText.length) newPlainText.push(plainText.splice(0, 3));
   plainText = [...newPlainText];
 
+  if(plainText[plainText.length -1].length < 3){
+    const lastLetter = plainText[plainText.length -1][plainText[plainText.length -1].length -1]
+    //console.log(lastLetter);
+    for(let i = 0 ; i <= 3 - plainText[plainText.length -1].length; i++ ){
+      plainText[plainText.length -1].push(lastLetter)
+    }
+  }
+
+  console.log(plainText);
+
   //chuyen plaintext sang ma tran so
   for (let i = 0; i < plainText.length; i++) {
     for (let j = 0; j < plainText[i].length; j++) {
       plainText[i][j] = HILLLETTERS.indexOf(plainText[i][j]);
     }
   }
+
+  
 
   //encrypt
   const num_result = [];
@@ -335,7 +347,7 @@ function HillEncrypt(plainText, cipherText, key) {
     cipherText_result.push(HILLLETTERS[num_result[i]]);
   }
 
-  console.log(cipherText_result);
+  //console.log(cipherText_result);
   cipherTextField.value = cipherText_result.join("");
 }
 
