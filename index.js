@@ -585,12 +585,12 @@ function XOR(x, y) {
 }
 
 function convertToBin(letter, num_bits) {
-  let index = HILLLETTERS.indexOf(letter);
-  if (index === 0) return "00000";
+  //let index = HILLLETTERS.indexOf(letter);
+  if (letter === 0) return "0000";
   const bin = [];
-  while (index !== 1) {
-    bin.push(index % 2);
-    index = Math.floor(index / 2);
+  while (letter !== 1) {
+    bin.push(letter % 2);
+    letter = Math.floor(letter / 2);
   }
   bin.push("1");
 
@@ -614,19 +614,12 @@ function binToDecimal(numbers) {
   return sum;
 }
 
-const hoanViKhoiTao = [];
-let first = 57;
-for (let j = 0; j < 8; j++) {
-  let linhtinh = first;
-  for (let i = 0; i < 8; i++) {
-    hoanViKhoiTao.push(linhtinh);
-    linhtinh -= 8;
-  }
-  if (first >= 63) {
-    first = 54;
-  }
-  first += 2;
-}
+let PC1 = [
+  57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10, 2, 59, 51, 43, 35,
+  27, 19, 11, 3, 60, 52, 44, 36, 63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38,
+  30, 22, 14, 6, 61, 53, 45, 37, 29, 21, 13, 5, 28, 20, 12, 4,
+];
+PC1 = PC1.map((e) => e - 1);
 
 const hoanViKetThuc = [
   39, 7, 47, 15, 55, 23, 63, 31, 38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13,
@@ -634,74 +627,183 @@ const hoanViKetThuc = [
   34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25, 32, 0, 40, 8, 48,
   16, 56, 24,
 ];
-function DesEncrypt(plainText, cipherText, key) {
-  plainText = plainText.split("");
+
+let hoanViKhoiTao = [
+  58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4, 62, 54, 46, 38,
+  30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8, 57, 49, 41, 33, 25, 17, 9, 1,
+  59, 51, 43, 35, 27, 19, 11, 3, 61, 53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39,
+  31, 23, 15, 7,
+];
+hoanViKhoiTao = hoanViKhoiTao.map((e) => e - 1);
+
+let PC2 = [
+  14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27,
+  20, 13, 2, 41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34,
+  53, 46, 42, 50, 36, 29, 32,
+];
+PC2 = PC2.map((e) => e - 1);
+
+const Numer_LeftSift_Table = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1];
+
+let bang_mo_rong_nua_phai = [
+  32, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 12, 13, 14, 15, 16,
+  17, 16, 17, 18, 19, 20, 21, 20, 21, 22, 23, 24, 25, 24, 25, 26, 27, 28, 29,
+  28, 29, 30, 31, 32, 1,
+];
+bang_mo_rong_nua_phai = bang_mo_rong_nua_phai.map((e) => e - 1);
+
+const convertHexToDec = (text) => {
+  switch (text) {
+    case "A":
+      return 10;
+    case "B":
+      return 11;
+    case "C":
+      return 12;
+    case "D":
+      return 13;
+    case "E":
+      return 14;
+    case "F":
+      return 15;
+    default:
+      return parseInt(text);
+  }
+};
+
+function genFinalKeyDes(key) {
+  const newKey = [];
+  while (key.length) newKey.push(key.splice(0, 2));
+  key = [...newKey];
+
+  const key_64bit = [];
+  for (let i = 0; i < key.length; i++) {
+    for (let j = 0; j < 2; j++) {
+      key[i][j] = convertHexToDec(key[i][j]);
+    }
+  }
+
+  for (let i = 0; i < key.length; i++) {
+    const first = convertToBin(key[i][0], 4);
+    const last = convertToBin(key[i][1], 4);
+    key_64bit.push(first + last);
+  }
+
+  console.log("key 64bit:", key_64bit);
+
+  const KeyArray_1D_64bit = [];
+  for (let i = 0; i < key_64bit.length; i++) {
+    for (let j = 0; j < key_64bit[i].length; j++) {
+      KeyArray_1D_64bit.push(parseInt(key_64bit[i][j]));
+    }
+  }
+
+  console.log("1D key array 64 bit: ", KeyArray_1D_64bit);
+  console.log("Hoan vi khoi tao: ", PC1);
+
+  //gen PC1K
+  let PC1K = [];
+  for (let i = 0; i < PC1.length; i++) {
+    PC1K.push(KeyArray_1D_64bit[PC1[i]]);
+  }
+
+  const newPC1K = [];
+  while (PC1K.length) newPC1K.push(PC1K.splice(0, 28));
+  PC1K = [...newPC1K];
+
+  console.log("PC1K: ", PC1K);
+  const SHiftLeftKey = [];
+  for (let i = 0; i < 16; i++) {
+    SHiftLeftKey.push(
+      subKeyGenerate(PC1K[0], PC1K[1], Numer_LeftSift_Table[i])
+    );
+  }
+
+  console.log("Key sau khi dich trai: ", SHiftLeftKey);
+
+  const finalKey = [];
+  for (let i = 0; i < SHiftLeftKey.length; i++) {
+    let temp = [];
+    for (let j = 0; j < PC2.length; j++) {
+      temp.push(SHiftLeftKey[i][PC2[j]]);
+    }
+    finalKey.push(temp);
+  }
+
+  return finalKey;
+}
+
+function genPlanTextDes(plainText) {
   const newPlainText = [];
-  while (plainText.length) newPlainText.push(plainText.splice(0, 8));
+  while (plainText.length) newPlainText.push(plainText.splice(0, 2));
   plainText = [...newPlainText];
 
-  if (plainText[plainText.length - 1].length < 8) {
-    const lastLetter =
-      plainText[plainText.length - 1][
-        plainText[plainText.length - 1].length - 1
-      ];
-    //console.log(lastLetter);
-    const length = 8 - plainText[plainText.length - 1].length;
-    for (let i = 0; i < length; i++) {
-      //console.log(i);
-      plainText[plainText.length - 1].push(lastLetter);
-    }
-  }
-
-  // //convert to number
-  // const num_plainText = [];
-  // for (let i = 0; i < plainText.length; i++) {
-  //   let temp = [];
-  //   for (let j = 0; j < plainText[i].length; j++) {
-  //     temp.push(HILLLETTERS.indexOf(plainText[i][j]));
-  //   }
-  //   num_plainText.push(temp);
-  //   temp = [];
-  // }
-
-  //convert to bin
+  const plainText_64bit = [];
   for (let i = 0; i < plainText.length; i++) {
-    for (let j = 0; j < plainText[i].length; j++) {
-      plainText[i][j] = convertToBin(plainText[i][j], 8);
+    for (let j = 0; j < 2; j++) {
+      plainText[i][j] = convertHexToDec(plainText[i][j]);
     }
   }
 
-  //chuyển sang mảng 2 chiều
-  let _newPlainText = [];
   for (let i = 0; i < plainText.length; i++) {
-    for (let j = 0; j < plainText[i].length; j++) {
-      const temp = plainText[i][j].split("");
-      for (let k = 0; k < temp.length; k++) {
-        _newPlainText.push(temp[k]);
-      }
+    const first = convertToBin(plainText[i][0], 4);
+    const last = convertToBin(plainText[i][1], 4);
+    plainText_64bit.push(first + last);
+  }
+
+  console.log("plainText 64bit:", plainText_64bit);
+
+  const plainTextArray_1D_64bit = [];
+  for (let i = 0; i < plainText_64bit.length; i++) {
+    for (let j = 0; j < plainText_64bit[i].length; j++) {
+      plainTextArray_1D_64bit.push(parseInt(plainText_64bit[i][j]));
     }
   }
 
-  //test với 64 bit đầu thôi
-  _newPlainText = convertTo2DimensionArray(_newPlainText, 64);
-  console.log(_newPlainText);
-  
-  //hoán vị khởi tạo plaiText
-  let __newPlainText = [];
-  for(let i = 0 ; i < hoanViKhoiTao.length ; i++){
-    __newPlainText.push(_newPlainText[0][hoanViKhoiTao[i]])
+  //gen plainText_after_permute
+  let plainText_after_permute = [];
+  for (let i = 0; i < hoanViKhoiTao.length; i++) {
+    plainText_after_permute.push(plainTextArray_1D_64bit[hoanViKhoiTao[i]]);
   }
 
-  __newPlainText = convertTo2DimensionArray(__newPlainText, 32)
-  
+  console.log("PlainText sau khi hoan vi: ", plainText_after_permute);
+  return plainText_after_permute;
+}
+
+// AABB09182736CCDD
+function DesEncrypt(plainText, cipherText, key) {
+  plainText = "123456ABCD132536".split("");
+  key = "AABB09182736CCDD".split("");
+
+  const finalKey = genFinalKeyDes(key);
+  let finalPlainText = genPlanTextDes(plainText);
+
+  for (let i = 0; i < 16; i++) {
+    const leftPlainText = finalPlainText.slice(0, 32);
+    const rightPlainText = finalPlainText.slice(32, 64);
+  }
 }
 
 function DesDecrypt(plainText, cipherText, key) {}
 
-function subKeyGenerate(key) {}
+function subKeyGenerate(left, right, count) {
+  for (let i = 0; i < count; i++) {
+    left.push(left.shift());
+    right.push(right.shift());
 
-function convertTo2DimensionArray(array, length_per_array){
-  const newArray = []
+    //mo rong ben phai
+    const newRight = [];
+    for (let i = 0; i < bang_mo_rong_nua_phai.length; i++) {
+      newRight.push(right[bang_mo_rong_nua_phai[i]]);
+    }
+    console.log(`Ben pha sau khi mo rong lan ${i}: `, newRight );
+  }
+
+  return [...left, ...right];
+}
+
+function convertTo2DimensionArray(array, length_per_array) {
+  const newArray = [];
   while (array.length) newArray.push(array.splice(0, length_per_array));
   return newArray;
 }
