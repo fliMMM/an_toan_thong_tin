@@ -6,8 +6,9 @@ const cipherTextField = document.getElementById("cipherText");
 const plainTextField = document.getElementById("plainText");
 const types = document.getElementById("types");
 
-const LETTERS = "ABCDEFGHJKLMNOPQRSTUVWXYZ".split("");
-const HILLLETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().split("");
+// const LETTERS = "ABCDEFGHJKLMNOPQRSTUVWXYZ".split("");
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().split("");
+const PlayFairLETTERS = "ABCDEFGHIKLMNOPQRSTUVWXYZ".toLowerCase().split("");
 
 const hillKey = [
   [17, 17, 5],
@@ -31,7 +32,7 @@ clear.addEventListener("click", () => {
   key.value = "";
 });
 
-//Caesar
+//Caesar welcometophenikaa
 function CaesarEncrypt(plainText, cipherText, key) {
   key = parseInt(key);
   plainText = plainText.split("");
@@ -43,19 +44,28 @@ function CaesarEncrypt(plainText, cipherText, key) {
   }
   cipherTextField.value = result.join("");
 }
+// ucjamkcrmnfclgiyy
 function CaesarDecrypt(plainText, cipherText, key) {
   key = parseInt(key);
-  plainText = cipherText.split("");
+  cipherText = cipherText.split("");
   const result = [];
+  let pos = null;
   for (let i = 0; i < cipherText.length; i++) {
-    const index = LETTERS.indexOf(plainText[i]);
-    const pos = (index - key) % 26;
+    const index = LETTERS.indexOf(cipherText[i]);
+    //console.log(index);
+    if (index < key) {
+      pos = (index - key + 26) % 26;
+    } else {
+      pos = (index - key) % 26;
+    }
+    //console.log(pos);
     result.push(LETTERS[pos]);
   }
+  console.log(result);
   plainTextField.value = result.join("");
 }
 
-//PlayFair
+//PlayFair text: instrumentsz  key: monarchy
 function PlayFairEncrypt(plainText, cipherText, key) {
   key = key.split("");
 
@@ -69,16 +79,18 @@ function PlayFairEncrypt(plainText, cipherText, key) {
   while (plainText.length) newPlainText.push(plainText.splice(0, 2));
   plainText = [...newPlainText];
 
+  console.log(plainText);
+
   //Tạo key array
   let keyArray = [];
   for (let i = 0; i < key.length; i++) {
     keyArray.push(key[i]);
   }
 
-  for (let j = 0; j < LETTERS.length; j++) {
-    const index = key.indexOf(LETTERS[j]);
+  for (let j = 0; j < PlayFairLETTERS.length; j++) {
+    const index = key.indexOf(PlayFairLETTERS[j]);
     if (index === -1) {
-      keyArray.push(LETTERS[j]);
+      keyArray.push(PlayFairLETTERS[j]);
     }
   }
 
@@ -86,7 +98,9 @@ function PlayFairEncrypt(plainText, cipherText, key) {
   while (keyArray.length) newArr.push(keyArray.splice(0, 5));
   keyArray = [...newArr];
 
-  //Đảo key aray
+  console.log(keyArray);
+
+  //Đảo key array
   const newArrayKey = [];
   for (let i = 0; i < 5; i++) {
     const temp = [];
@@ -96,11 +110,10 @@ function PlayFairEncrypt(plainText, cipherText, key) {
     newArrayKey.push(temp);
   }
 
-  console.log("keyArray: ", keyArray);
-  console.log("plainText:", plainText);
+  //console.log("keyArray: ", newArrayKey);
+  //console.log("plainText:", plainText);
 
-  let _index = 0;
-
+  const done = [];
   //Hang ngang
   for (let i = 0; i < keyArray.length; i++) {
     for (let j = 0; j < plainText.length; j++) {
@@ -108,7 +121,7 @@ function PlayFairEncrypt(plainText, cipherText, key) {
         keyArray[i].indexOf(plainText[j][0]) !== -1 &&
         keyArray[i].indexOf(plainText[j][1]) !== -1
       ) {
-        _index++;
+        done.push(j);
         for (let u = 0; u < 2; u++) {
           const index = keyArray[i].indexOf(plainText[j][u]);
           if (index + 1 > keyArray[i].length - 1) {
@@ -128,9 +141,10 @@ function PlayFairEncrypt(plainText, cipherText, key) {
         newArrayKey[i].indexOf(plainText[j][0]) !== -1 &&
         newArrayKey[i].indexOf(plainText[j][1]) !== -1
       ) {
-        _index++;
+        done.push(j);
         for (let u = 0; u < 2; u++) {
           const index = newArrayKey[i].indexOf(plainText[j][u]);
+          console.log(index);
           if (index + 1 > newArrayKey[i].length - 1) {
             plainText[j][u] = newArrayKey[i][0];
           } else {
@@ -151,39 +165,50 @@ function PlayFairEncrypt(plainText, cipherText, key) {
     temp.push(_temp);
   }
 
-  for (let p = _index; p < plainText.length; p++) {
+  console.log(done);
+
+  let done_index = 0;
+  for (let p = 0; p < plainText.length; p++) {
     let X1 = null,
       X2 = null,
       Y1 = null,
       Y2 = null;
-    for (let j = 0; j < 5; j++) {
-      if (keyArray[j].indexOf(plainText[p][0]) !== -1) {
-        Y1 = keyArray[j].indexOf(plainText[p][0]);
-        X1 = j;
-      }
+    if (done.indexOf(p) === -1) {
+      for (let j = 0; j < 5; j++) {
+        if (keyArray[j].indexOf(plainText[p][0]) !== -1) {
+          Y1 = keyArray[j].indexOf(plainText[p][0]);
+          X1 = j;
+        }
 
-      if (keyArray[j].indexOf(plainText[p][1]) !== -1) {
-        Y2 = keyArray[j].indexOf(plainText[p][1]);
-        X2 = j;
+        if (keyArray[j].indexOf(plainText[p][1]) !== -1) {
+          Y2 = keyArray[j].indexOf(plainText[p][1]);
+          X2 = j;
+        }
       }
+      temp[p][1] = keyArray[X2][Y1];
+      temp[p][0] = keyArray[X1][Y2];
     }
-    temp[p][1] = keyArray[X2][Y1];
-    temp[p][0] = keyArray[X1][Y2];
   }
 
   console.log("keyArray: ", keyArray);
   console.log("plainText:", temp);
-  cipherTextField.value = temp.join("");
+  let _r = "";
+  for (let i = 0; i < temp.length; i++) {
+    for (let j = 0; j < temp[i].length; j++) {
+      _r += temp[i][j];
+    }
+  }
+  cipherTextField.value = _r;
 }
 
+//gatlmzclrqtx
 function PlayFairDecrypt(plainText, cipherText, key) {
   key = key.split("");
 
   //Tách cặp
   cipherText = cipherText.split("");
-  const newcipherText = [];
-  while (cipherText.length) newcipherText.push(cipherText.splice(0, 2));
-  cipherText = [...newcipherText];
+  const newcipherText = convertTo2DimensionArray(cipherText, 2);
+  cipherText = convertTo2DimensionArray(cipherText, 2);
   console.log(newcipherText);
 
   //Tạo key array
@@ -192,16 +217,15 @@ function PlayFairDecrypt(plainText, cipherText, key) {
     keyArray.push(key[i]);
   }
 
-  for (let j = 0; j < LETTERS.length; j++) {
-    if (key.indexOf(LETTERS[j]) === -1) {
-      keyArray.push(LETTERS[j]);
+  for (let j = 0; j < PlayFairLETTERS.length; j++) {
+    if (key.indexOf(PlayFairLETTERS[j]) === -1) {
+      keyArray.push(PlayFairLETTERS[j]);
     }
   }
 
   const newArr = [];
   while (keyArray.length) newArr.push(keyArray.splice(0, 5));
   keyArray = [...newArr];
-  console.log(keyArray);
 
   //Đảo key aray
   const newArrayKey = [];
@@ -213,10 +237,10 @@ function PlayFairDecrypt(plainText, cipherText, key) {
     newArrayKey.push(temp);
   }
 
-  // console.log("keyArray: ", keyArray);
-  // console.log("plainText:", plainText);
+  console.log("keyArray: ", keyArray);
+  console.log("plainText:", plainText);
 
-  let _index = 0;
+  const done = [];
 
   //Hang ngang
   for (let i = 0; i < keyArray.length; i++) {
@@ -225,7 +249,7 @@ function PlayFairDecrypt(plainText, cipherText, key) {
         keyArray[i].indexOf(cipherText[j][0]) !== -1 &&
         keyArray[i].indexOf(cipherText[j][1]) !== -1
       ) {
-        _index++;
+        done.push(j);
         for (let u = 0; u < 2; u++) {
           const index = keyArray[i].indexOf(cipherText[j][u]);
           if (index == 0) {
@@ -245,7 +269,7 @@ function PlayFairDecrypt(plainText, cipherText, key) {
         newArrayKey[i].indexOf(cipherText[j][0]) !== -1 &&
         newArrayKey[i].indexOf(cipherText[j][1]) !== -1
       ) {
-        _index++;
+        done.push(j);
         for (let u = 0; u < 2; u++) {
           const index = newArrayKey[i].indexOf(cipherText[j][u]);
           if (index == 0) {
@@ -258,50 +282,53 @@ function PlayFairDecrypt(plainText, cipherText, key) {
     }
   }
 
-  // hinh chu nhat
-  let temp = [];
-  for (let i = 0; i < cipherText.length; i++) {
-    const _temp = [];
-    for (let j = 0; j < cipherText[i].length; j++) {
-      _temp.push(cipherText[i][j]);
-    }
-    temp.push(_temp);
-  }
+  console.log(cipherText);
+  console.log(done);
 
-  for (let p = _index; p < cipherText.length; p++) {
+  // hinh chu nhat
+
+  for (let p = 0; p < cipherText.length; p++) {
     let X1 = null,
       X2 = null,
       Y1 = null,
       Y2 = null;
-    for (let j = 0; j < 5; j++) {
-      if (keyArray[j].indexOf(cipherText[p][0]) !== -1) {
-        Y1 = keyArray[j].indexOf(cipherText[p][0]);
-        X1 = j;
-      }
+    if (done.indexOf(p) === -1) {
+      for (let j = 0; j < 5; j++) {
+        if (keyArray[j].indexOf(cipherText[p][0]) !== -1) {
+          Y1 = keyArray[j].indexOf(cipherText[p][0]);
+          X1 = j;
+        }
 
-      if (keyArray[j].indexOf(cipherText[p][1]) !== -1) {
-        Y2 = keyArray[j].indexOf(cipherText[p][1]);
-        X2 = j;
+        if (keyArray[j].indexOf(cipherText[p][1]) !== -1) {
+          Y2 = keyArray[j].indexOf(cipherText[p][1]);
+          X2 = j;
+        }
       }
-    }
-    temp[p][1] = keyArray[X1][Y1];
-    temp[p][0] = keyArray[X2][Y2];
-  }
-
-  // console.log("keyArray: ", keyArray);
-  //console.log("cipherText:", temp);
-  for (let i = 0; i < temp.length; i++) {
-    for (let j = 0; j < temp[i].length; j++) {
-      if (temp[i][j] === "X") {
-        temp[i][j] = "";
-      }
+      console.log(X1, Y1, X2, Y2);
+      cipherText[p][1] = keyArray[X2][Y1];
+      cipherText[p][0] = keyArray[X1][Y2];
     }
   }
 
-  plainTextField.value = temp.join("");
+  for (let i = 0; i < cipherText.length; i++) {
+    for (let j = 0; j < cipherText[i].length; j++) {
+      if (cipherText[i][j] === "X") {
+        cipherText[i][j] = "";
+      }
+    }
+  }
+
+  let _r = "";
+  for (let i = 0; i < cipherText.length; i++) {
+    for (let j = 0; j < cipherText[i].length; j++) {
+      _r += cipherText[i][j];
+    }
+  }
+
+  plainTextField.value = _r;
 }
 
-//Hill
+//Hill paymoremoney
 function HillEncrypt(plainText, cipherText, key) {
   //Tách cặp
   plainText = plainText.split("");
@@ -325,7 +352,7 @@ function HillEncrypt(plainText, cipherText, key) {
   //chuyen plaintext sang ma tran so
   for (let i = 0; i < plainText.length; i++) {
     for (let j = 0; j < plainText[i].length; j++) {
-      plainText[i][j] = HILLLETTERS.indexOf(plainText[i][j]);
+      plainText[i][j] = LETTERS.indexOf(plainText[i][j]);
     }
   }
 
@@ -345,7 +372,7 @@ function HillEncrypt(plainText, cipherText, key) {
 
   const cipherText_result = [];
   for (let i = 0; i < num_result.length; i++) {
-    cipherText_result.push(HILLLETTERS[num_result[i]]);
+    cipherText_result.push(LETTERS[num_result[i]]);
   }
 
   //console.log(cipherText_result);
@@ -362,7 +389,7 @@ function HillDecrypt(plainText, cipherText, key) {
   //chuyen cipherText sang ma tran so
   for (let i = 0; i < cipherText.length; i++) {
     for (let j = 0; j < cipherText[i].length; j++) {
-      cipherText[i][j] = HILLLETTERS.indexOf(cipherText[i][j]);
+      cipherText[i][j] = LETTERS.indexOf(cipherText[i][j]);
     }
   }
 
@@ -382,31 +409,14 @@ function HillDecrypt(plainText, cipherText, key) {
 
   const plainText_result = [];
   for (let i = 0; i < num_result.length; i++) {
-    plainText_result.push(HILLLETTERS[num_result[i]]);
+    plainText_result.push(LETTERS[num_result[i]]);
   }
 
   console.log(plainText_result);
   plainTextField.value = plainText_result.join("");
 }
-//VYBXCLNW
-// function BruteForce(plainText) {
-//   plainText = plainText.split("");
 
-//   for (let j = 1; j <= 26; j++) {
-//     const result = [];
-//     for (let i = 0; i < plainText.length; i++) {
-//       const index = LETTERS.indexOf(plainText[i]);
-//       let pos = (index - j) % 26;
-//       if(index-j < 0){
-//         pos = (index - j + 26) % 26;
-//       }
-//       result.push(LETTERS[pos]);
-//     }
-//     console.log(result.join(""));
-//   }
-// }
-
-//wearediscoveredsaveyourself
+//wearediscoveredsaveyourself key: deceptive
 //vigen
 function VigenereEncrypt(plainText, cipherText, key) {
   key = key.split("");
@@ -430,8 +440,8 @@ function VigenereEncrypt(plainText, cipherText, key) {
   plainText = convertToNumArray(plainText);
   key = convertToNumArray(key);
   for (let i = 0; i < plainText.length; i++) {
-    const index = (plainText[i] + key[i % m]) % HILLLETTERS.length;
-    result.push(HILLLETTERS[index]);
+    const index = (plainText[i] + key[i % m]) % LETTERS.length;
+    result.push(LETTERS[index]);
   }
 
   cipherTextField.value = result.join("");
@@ -461,16 +471,16 @@ function VigenereDecrypt(plainText, cipherText, key) {
 
   for (let i = 0; i < cipherText.length; i++) {
     if (cipherText[i] - key[i % m] > 0) {
-      const index = (cipherText[i] - key[i % m]) % HILLLETTERS.length;
-      console.log(HILLLETTERS[index]);
+      const index = (cipherText[i] - key[i % m]) % LETTERS.length;
+      console.log(LETTERS[index]);
       console.log("index: ", index);
-      result.push(HILLLETTERS[index]);
+      result.push(LETTERS[index]);
     } else {
       const index =
-        (cipherText[i] - key[i % m] + HILLLETTERS.length) % HILLLETTERS.length;
-      console.log(HILLLETTERS[index]);
+        (cipherText[i] - key[i % m] + LETTERS.length) % LETTERS.length;
+      console.log(LETTERS[index]);
       console.log("index: ", index);
-      result.push(HILLLETTERS[index]);
+      result.push(LETTERS[index]);
     }
   }
 
@@ -481,101 +491,101 @@ function VigenereDecrypt(plainText, cipherText, key) {
 function convertToNumArray(letterArray) {
   const numArray = [];
   for (let i = 0; i < letterArray.length; i++) {
-    numArray.push(HILLLETTERS.indexOf(letterArray[i]));
+    numArray.push(LETTERS.indexOf(letterArray[i]));
   }
 
   return numArray;
 }
 
-function VernamEncrypt(plainText, cipherText, key) {
-  plainText = plainText.split("");
-  key = key.split("");
-  const newPlainText = [];
-  const newKey = [];
-  //to bin
-  for (let i = 0; i < plainText.length; i++) {
-    newPlainText.push(convertToBin(plainText[i]), 5);
-  }
-  for (let i = 0; i < plainText.length; i++) {
-    newPlainText[i] = newPlainText[i].split("");
-  }
+// function VernamEncrypt(plainText, cipherText, key) {
+//   plainText = plainText.toLowerCase().split("");
+//   key = key.toLowerCase().split("");
+//   const newPlainText = [];
+//   const newKey = [];
+//   //to bin
+//   for (let i = 0; i < plainText.length; i++) {
+//     newPlainText.push(convertToBin(plainText[i]), 5);
+//   }
+//   for (let i = 0; i < plainText.length; i++) {
+//     newPlainText[i] = newPlainText[i].split("");
+//   }
 
-  for (let i = 0; i < key.length; i++) {
-    newKey.push(convertToBin(key[i]));
-  }
+//   for (let i = 0; i < key.length; i++) {
+//     newKey.push(convertToBin(key[i]));
+//   }
 
-  for (let i = 0; i < plainText.length; i++) {
-    newKey[i] = newKey[i].split("");
-  }
+//   for (let i = 0; i < plainText.length; i++) {
+//     newKey[i] = newKey[i].split("");
+//   }
 
-  //xor
-  let result = [];
-  for (let i = 0; i < newPlainText.length; i++) {
-    for (let j = 0; j < newPlainText[i].length; j++) {
-      result.push(XOR(newPlainText[i][j], newKey[i][j]));
-    }
-  }
+//   //xor
+//   let result = [];
+//   for (let i = 0; i < newPlainText.length; i++) {
+//     for (let j = 0; j < newPlainText[i].length; j++) {
+//       result.push(XOR(newPlainText[i][j], newKey[i][j]));
+//     }
+//   }
 
-  const newResult = [];
-  while (result.length) newResult.push(result.splice(0, 5));
-  result = [...newResult];
+//   const newResult = [];
+//   while (result.length) newResult.push(result.splice(0, 5));
+//   result = [...newResult];
 
-  //to letter
-  const letters = [];
-  for (let i = 0; i < result.length; i++) {
-    letters.push(HILLLETTERS[binToDecimal(result[i])]);
-  }
+//   //to letter
+//   const letters = [];
+//   for (let i = 0; i < result.length; i++) {
+//     letters.push(LETTERS[binToDecimal(result[i])]);
+//   }
 
-  cipherTextField.value = letters.join("");
-}
+//   cipherTextField.value = letters.join("");
+// }
 
-function VernamDecrypt(plainText, cipherText, key) {
-  cipherText = cipherText.split("");
-  key = key.split("");
-  const newCipherText = [];
-  const newKey = [];
+// function VernamDecrypt(plainText, cipherText, key) {
+//   cipherText = cipherText.split("");
+//   key = key.split("");
+//   const newCipherText = [];
+//   const newKey = [];
 
-  //to bin
-  for (let i = 0; i < cipherText.length; i++) {
-    newCipherText.push(convertToBin(cipherText[i]), 5);
-  }
-  for (let i = 0; i < cipherText.length; i++) {
-    newCipherText[i] = newCipherText[i].split("");
-  }
+//   //to bin
+//   for (let i = 0; i < cipherText.length; i++) {
+//     newCipherText.push(convertToBin(cipherText[i]), 5);
+//   }
+//   for (let i = 0; i < cipherText.length; i++) {
+//     newCipherText[i] = newCipherText[i].split("");
+//   }
 
-  for (let i = 0; i < key.length; i++) {
-    newKey.push(convertToBin(key[i]));
-  }
+//   for (let i = 0; i < key.length; i++) {
+//     newKey.push(convertToBin(key[i]));
+//   }
 
-  for (let i = 0; i < cipherText.length; i++) {
-    newKey[i] = newKey[i].split("");
-  }
+//   for (let i = 0; i < cipherText.length; i++) {
+//     newKey[i] = newKey[i].split("");
+//   }
 
-  console.log(newCipherText);
-  console.log(newKey);
+//   console.log(newCipherText);
+//   console.log(newKey);
 
-  //xor
-  let result = [];
-  for (let i = 0; i < newCipherText.length; i++) {
-    for (let j = 0; j < newCipherText[i].length; j++) {
-      result.push(XOR(newCipherText[i][j], newKey[i][j]));
-    }
-  }
+//   //xor
+//   let result = [];
+//   for (let i = 0; i < newCipherText.length; i++) {
+//     for (let j = 0; j < newCipherText[i].length; j++) {
+//       result.push(XOR(newCipherText[i][j], newKey[i][j]));
+//     }
+//   }
 
-  console.log(result);
+//   console.log(result);
 
-  const newResult = [];
-  while (result.length) newResult.push(result.splice(0, 5));
-  result = [...newResult];
+//   const newResult = [];
+//   while (result.length) newResult.push(result.splice(0, 5));
+//   result = [...newResult];
 
-  //to letter
-  const letters = [];
-  for (let i = 0; i < result.length; i++) {
-    letters.push(HILLLETTERS[binToDecimal(result[i])]);
-  }
+//   //to letter
+//   const letters = [];
+//   for (let i = 0; i < result.length; i++) {
+//     letters.push(LETTERS[binToDecimal(result[i])]);
+//   }
 
-  plainTextField.value = letters.join("");
-}
+//   plainTextField.value = letters.join("");
+// }
 
 function XOR(x, y) {
   if (x === "0" && y === "0") return 0;
@@ -585,7 +595,7 @@ function XOR(x, y) {
 }
 
 function convertToBin(letter, num_bits) {
-  //let index = HILLLETTERS.indexOf(letter);
+  //let index = LETTERS.indexOf(letter);
   if (letter === 0) return "0000";
   const bin = [];
   while (letter !== 1) {
@@ -862,8 +872,9 @@ function genPlanTextDes(plainText) {
   return plainText_after_permute;
 }
 
-// 0F1571C947D9E859 
+// 0F1571C947D9E859
 function DesEncrypt(plainText, cipherText, key) {
+  console.log("hehe");
   plainText = plainText.split("");
   key = key.split("");
 
@@ -974,9 +985,17 @@ function subKeyGenerate(left, right, count) {
 }
 
 function convertTo2DimensionArray(array, length_per_array) {
+  const temp = [];
+  for (let i = 0; i < array.length; i++) {
+    temp.push(array[i]);
+  }
   const newArray = [];
-  while (array.length) newArray.push(array.splice(0, length_per_array));
+  while (temp.length) newArray.push(temp.splice(0, length_per_array));
   return newArray;
+}
+
+function AesEncrypt(plainText, cipherText, key) {
+  console.log(plainText);
 }
 
 function Encrypt(plainText, cipherText, key) {
@@ -998,6 +1017,9 @@ function Encrypt(plainText, cipherText, key) {
       break;
     case "Des":
       DesEncrypt(plainText, cipherText, key);
+      break;
+    case "Aes":
+      AesEncrypt(plainText, cipherText, key);
       break;
     default:
       console.log("nothing");
