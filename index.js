@@ -21,11 +21,6 @@ const hillKeyNghichDao = [
   [24, 0, 17],
 ];
 
-types.addEventListener("change", () => {
-  plainTextField.value = "";
-  cipherTextField.value = "";
-  key.value = "";
-});
 clear.addEventListener("click", () => {
   plainTextField.value = "";
   cipherTextField.value = "";
@@ -497,95 +492,50 @@ function convertToNumArray(letterArray) {
   return numArray;
 }
 
-// function VernamEncrypt(plainText, cipherText, key) {
-//   plainText = plainText.toLowerCase().split("");
-//   key = key.toLowerCase().split("");
-//   const newPlainText = [];
-//   const newKey = [];
-//   //to bin
-//   for (let i = 0; i < plainText.length; i++) {
-//     newPlainText.push(convertToBin(plainText[i]), 5);
-//   }
-//   for (let i = 0; i < plainText.length; i++) {
-//     newPlainText[i] = newPlainText[i].split("");
-//   }
+//RAMSWARUPK key:RANCHOBABA
+function VernamEncrypt(plainText, cipherText, key) {
+  plainText = "RAMSWARUPK".toLowerCase().split("");
+  key = "RANCHOBABA".toLowerCase().split("");
 
-//   for (let i = 0; i < key.length; i++) {
-//     newKey.push(convertToBin(key[i]));
-//   }
+  const newPlainText = [];
+  const newKey = [];
+  //to bin
+  for (let i = 0; i < plainText.length; i++) {
+    newPlainText.push(convertToBin(LETTERS.indexOf(plainText[i]), 5));
+  }
 
-//   for (let i = 0; i < plainText.length; i++) {
-//     newKey[i] = newKey[i].split("");
-//   }
+  for (let i = 0; i < plainText.length; i++) {
+    newPlainText[i] = newPlainText[i].split("");
+  }
 
-//   //xor
-//   let result = [];
-//   for (let i = 0; i < newPlainText.length; i++) {
-//     for (let j = 0; j < newPlainText[i].length; j++) {
-//       result.push(XOR(newPlainText[i][j], newKey[i][j]));
-//     }
-//   }
+  for (let i = 0; i < key.length; i++) {
+    newKey.push(convertToBin(LETTERS.indexOf(key[i]), 5));
+  }
 
-//   const newResult = [];
-//   while (result.length) newResult.push(result.splice(0, 5));
-//   result = [...newResult];
+  for (let i = 0; i < plainText.length; i++) {
+    newKey[i] = newKey[i].split("");
+  }
 
-//   //to letter
-//   const letters = [];
-//   for (let i = 0; i < result.length; i++) {
-//     letters.push(LETTERS[binToDecimal(result[i])]);
-//   }
+  //xor
+  let result = [];
+  for (let i = 0; i < newPlainText.length; i++) {
+    for (let j = 0; j < newPlainText[i].length; j++) {
+      result.push(XOR(newPlainText[i][j], newKey[i][j]));
+    }
+  }
 
-//   cipherTextField.value = letters.join("");
-// }
+  const newResult = [];
+  while (result.length) newResult.push(result.splice(0, 5));
+  result = [...newResult];
 
-// function VernamDecrypt(plainText, cipherText, key) {
-//   cipherText = cipherText.split("");
-//   key = key.split("");
-//   const newCipherText = [];
-//   const newKey = [];
+  //to letter
+  const letters = [];
+  for (let i = 0; i < result.length; i++) {
+    letters.push(LETTERS[binToDecimal(result[i])]);
+  }
 
-//   //to bin
-//   for (let i = 0; i < cipherText.length; i++) {
-//     newCipherText.push(convertToBin(cipherText[i]), 5);
-//   }
-//   for (let i = 0; i < cipherText.length; i++) {
-//     newCipherText[i] = newCipherText[i].split("");
-//   }
-
-//   for (let i = 0; i < key.length; i++) {
-//     newKey.push(convertToBin(key[i]));
-//   }
-
-//   for (let i = 0; i < cipherText.length; i++) {
-//     newKey[i] = newKey[i].split("");
-//   }
-
-//   console.log(newCipherText);
-//   console.log(newKey);
-
-//   //xor
-//   let result = [];
-//   for (let i = 0; i < newCipherText.length; i++) {
-//     for (let j = 0; j < newCipherText[i].length; j++) {
-//       result.push(XOR(newCipherText[i][j], newKey[i][j]));
-//     }
-//   }
-
-//   console.log(result);
-
-//   const newResult = [];
-//   while (result.length) newResult.push(result.splice(0, 5));
-//   result = [...newResult];
-
-//   //to letter
-//   const letters = [];
-//   for (let i = 0; i < result.length; i++) {
-//     letters.push(LETTERS[binToDecimal(result[i])]);
-//   }
-
-//   plainTextField.value = letters.join("");
-// }
+  cipherTextField.value = letters.join("");
+}
 
 function XOR(x, y) {
   if (x === "0" && y === "0") return 0;
@@ -595,8 +545,13 @@ function XOR(x, y) {
 }
 
 function convertToBin(letter, num_bits) {
-  //let index = LETTERS.indexOf(letter);
-  if (letter === 0) return "0000";
+  if (letter === 0) {
+    const temp = [];
+    for (let i = 0; i < num_bits; i++) {
+      temp.push("0");
+    }
+    return temp.join("");
+  }
   const bin = [];
   while (letter !== 1) {
     bin.push(letter % 2);
@@ -729,17 +684,17 @@ P = P.map((e) => e - 1);
 
 const convertHexToDec = (text) => {
   switch (text) {
-    case "A":
+    case "a":
       return 10;
-    case "B":
+    case "b":
       return 11;
-    case "C":
+    case "c":
       return 12;
-    case "D":
+    case "d":
       return 13;
-    case "E":
+    case "e":
       return 14;
-    case "F":
+    case "f":
       return 15;
     default:
       return parseInt(text);
@@ -748,17 +703,17 @@ const convertHexToDec = (text) => {
 const convertDecToHex = (text) => {
   switch (text) {
     case 10:
-      return "A";
+      return "a";
     case 11:
-      return "B";
+      return "b";
     case 12:
-      return "C";
+      return "c";
     case 13:
-      return "D";
+      return "d";
     case 14:
-      return "E";
+      return "e";
     case 15:
-      return "F";
+      return "f";
     default:
       return parseInt(text);
   }
@@ -774,9 +729,7 @@ const BinToDec = (BinArray) => {
 };
 
 function genFinalKeyDes(key) {
-  const newKey = [];
-  while (key.length) newKey.push(key.splice(0, 2));
-  key = [...newKey];
+  key = convertTo2DimensionArray(key, 2);
 
   const key_64bit = [];
   for (let i = 0; i < key.length; i++) {
@@ -872,10 +825,9 @@ function genPlanTextDes(plainText) {
   return plainText_after_permute;
 }
 
-// 0F1571C947D9E859
+// key:0f1571c947d9e859  02468aceeca86420
 function DesEncrypt(plainText, cipherText, key) {
-  console.log("hehe");
-  plainText = plainText.split("");
+  plainText = plainText.toLowerCase().split("");
   key = key.split("");
 
   const finalKey = genFinalKeyDes(key);
@@ -1041,9 +993,9 @@ function Decrypt(plainText, cipherText, key) {
     case "Vigenere":
       VigenereDecrypt(plainText, cipherText, key);
       break;
-    case "Vernam":
-      VernamDecrypt(plainText, cipherText, key);
-      break;
+    // case "Vernam":
+    //   VernamDecrypt(plainText, cipherText, key);
+    //   break;
     case "Des":
       DesDecrypt(plainText, cipherText, key);
       break;
