@@ -6,7 +6,7 @@ const cipherTextField = document.getElementById("cipherText");
 const plainTextField = document.getElementById("plainText");
 const types = document.getElementById("types");
 
-// const LETTERS = "ABCDEFGHJKLMNOPQRSTUVWXYZ".split("");
+
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().split("");
 const PlayFairLETTERS = "ABCDEFGHIKLMNOPQRSTUVWXYZ".toLowerCase().split("");
 
@@ -70,9 +70,7 @@ function PlayFairEncrypt(plainText, cipherText, key) {
     if (plainText[i] === plainText[i - 1]) plainText.splice(i, 0, "X");
   }
   if (plainText.length % 2 === 1) plainText.push("X");
-  const newPlainText = [];
-  while (plainText.length) newPlainText.push(plainText.splice(0, 2));
-  plainText = [...newPlainText];
+  plainText = convertTo2DimensionArray(plainText, 2);
 
   console.log(plainText);
 
@@ -218,9 +216,7 @@ function PlayFairDecrypt(plainText, cipherText, key) {
     }
   }
 
-  const newArr = [];
-  while (keyArray.length) newArr.push(keyArray.splice(0, 5));
-  keyArray = [...newArr];
+  keyArray = convertTo2DimensionArray(keyArray, 5);
 
   //Đảo key aray
   const newArrayKey = [];
@@ -327,9 +323,7 @@ function PlayFairDecrypt(plainText, cipherText, key) {
 function HillEncrypt(plainText, cipherText, key) {
   //Tách cặp
   plainText = plainText.split("");
-  const newPlainText = [];
-  while (plainText.length) newPlainText.push(plainText.splice(0, 3));
-  plainText = [...newPlainText];
+  plainText = convertTo2DimensionArray(plainText, 3);
 
   if (plainText[plainText.length - 1].length < 3) {
     const lastLetter =
@@ -377,9 +371,7 @@ function HillEncrypt(plainText, cipherText, key) {
 function HillDecrypt(plainText, cipherText, key) {
   //Tách cặp
   cipherText = cipherText.split("");
-  const newCipherText = [];
-  while (cipherText.length) newCipherText.push(cipherText.splice(0, 3));
-  cipherText = [...newCipherText];
+  cipherText = convertTo2DimensionArray(cipherText, 3);
 
   //chuyen cipherText sang ma tran so
   for (let i = 0; i < cipherText.length; i++) {
@@ -494,8 +486,8 @@ function convertToNumArray(letterArray) {
 
 //RAMSWARUPK key:RANCHOBABA
 function VernamEncrypt(plainText, cipherText, key) {
-  plainText = "RAMSWARUPK".toLowerCase().split("");
-  key = "RANCHOBABA".toLowerCase().split("");
+  plainText = plainText.toLowerCase().split("");
+  key = key.toLowerCase().split("");
 
   const newPlainText = [];
   const newKey = [];
@@ -524,9 +516,7 @@ function VernamEncrypt(plainText, cipherText, key) {
     }
   }
 
-  const newResult = [];
-  while (result.length) newResult.push(result.splice(0, 5));
-  result = [...newResult];
+  result = convertTo2DimensionArray(result, 5);
 
   //to letter
   const letters = [];
@@ -762,9 +752,7 @@ function genFinalKeyDes(key) {
     PC1K.push(KeyArray_1D_64bit[PC1[i]]);
   }
 
-  const newPC1K = [];
-  while (PC1K.length) newPC1K.push(PC1K.splice(0, 28));
-  PC1K = [...newPC1K];
+  PC1K = convertTo2DimensionArray(PC1K, 28);
 
   console.log("PC1K: ", PC1K);
   const SHiftLeftKey = [];
@@ -789,9 +777,7 @@ function genFinalKeyDes(key) {
 }
 
 function genPlanTextDes(plainText) {
-  const newPlainText = [];
-  while (plainText.length) newPlainText.push(plainText.splice(0, 2));
-  plainText = [...newPlainText];
+  plainText = convertTo2DimensionArray(plainText, 2);
 
   const plainText_64bit = [];
   for (let i = 0; i < plainText.length; i++) {
@@ -853,12 +839,10 @@ function DesEncrypt(plainText, cipherText, key) {
     }
 
     //chia thanh 8 cuc 6 bit
-    const new_right_plainText_after_xor = [];
-    while (right_plainText_after_xor.length)
-      new_right_plainText_after_xor.push(
-        right_plainText_after_xor.splice(0, 6)
-      );
-    right_plainText_after_xor = [...new_right_plainText_after_xor];
+    right_plainText_after_xor = convertTo2DimensionArray(
+      right_plainText_after_xor,
+      6
+    );
     console.log(right_plainText_after_xor);
 
     //cho vao sBox;
@@ -913,9 +897,7 @@ function DesEncrypt(plainText, cipherText, key) {
     new_after_16_round.push(after_16_round[hoanViKetThuc[i]]);
   }
 
-  const temp = [];
-  while (new_after_16_round.length) temp.push(new_after_16_round.splice(0, 4));
-  new_after_16_round = [...temp];
+  new_after_16_round = convertTo2DimensionArray(new_after_16_round, 4);
 
   for (let i = 0; i < new_after_16_round.length; i++) {
     new_after_16_round[i] = convertDecToHex(BinToDec(new_after_16_round[i]));
