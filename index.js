@@ -6,7 +6,6 @@ const cipherTextField = document.getElementById("cipherText");
 const plainTextField = document.getElementById("plainText");
 const types = document.getElementById("types");
 
-
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().split("");
 const PlayFairLETTERS = "ABCDEFGHIKLMNOPQRSTUVWXYZ".toLowerCase().split("");
 
@@ -35,8 +34,10 @@ function CaesarEncrypt(plainText, cipherText, key) {
   for (let i = 0; i < plainText.length; i++) {
     const index = LETTERS.indexOf(plainText[i]);
     const pos = (index + key) % 26;
+    console.log(pos);
     result.push(LETTERS[pos]);
   }
+  console.log(result);
   cipherTextField.value = result.join("");
 }
 // ucjamkcrmnfclgiyy
@@ -928,8 +929,109 @@ function convertTo2DimensionArray(array, length_per_array) {
   return newArray;
 }
 
-function AesEncrypt(plainText, cipherText, key) {
-  console.log(plainText);
+function gcd(a, b) {
+  if (a === 0 || b === 0) return a + b;
+
+  while (a !== b) {
+    if (a > b) {
+      a -= b;
+    } else {
+      b -= a;
+    }
+  }
+
+  return a;
+}
+
+function ext_euclidean(x, y, c) {
+  let x1 = 1;
+  let x2 = 0;
+  let y1 = 0;
+  let y2 = 1;
+
+  let i = 0;
+
+  while (c !== 1) {
+    i++;
+    let phan_du_cua_x_chia_y = x % y;
+    let ket_qua_cua_x_chia_y = Math.floor(x / y);
+    let temp_y2 = y2;
+    let temp_x1 = x1;
+    x1 = x1 - ket_qua_cua_x_chia_y * y1;
+    y2 = x2 - ket_qua_cua_x_chia_y * y2;
+    c = phan_du_cua_x_chia_y;
+    x = y;
+    x1 = y1;
+    x2 = temp_y2;
+    y1 = temp_x1 - ket_qua_cua_x_chia_y * y1;
+    y = phan_du_cua_x_chia_y;
+    // console.error(`lần ${i}:`);
+    // console.log("x: ", x);
+    // console.log("y: ", y);
+    // console.log("c: ", c);
+    // console.log("x1: ", x1);
+    // console.log("x2: ", x2);
+    // console.log("y1: ", y1);
+    // console.log("y2: ", y2);
+  }
+
+  return y2;
+}
+
+function genRsaKey(p, q) {
+  const On = (p - 1) * (q - 1);
+  const temp = [];
+  for (let e = 2; e < On; e++) {
+    if (gcd(On, e) === 1) temp.push(e);
+  }
+
+  // const e = temp[Math.floor(temp.length / 2) + 1];
+  const e = 7;
+
+  let d = null;
+  if (On > e) {
+    d = ext_euclidean(On, e, On % e);
+  } else if (On < e) {
+    d = ext_euclidean(e, On, e % On);
+  }
+
+  console.log("Kpu = {" + e + "," + p * q + "}");
+  console.log("Kpr = {" + d + "}");
+  return { e, d };
+}
+
+function RsaEncrypt(plainText, cipherText, key) {
+  const p = parseInt(document.getElementById("p").value);
+  const q = parseInt(document.getElementById("q").value);
+  const n = p * q;
+
+  const { e } = genRsaKey(p, q);
+
+  console.log("e: ", e);
+  console.log("n: ", n);
+  // console.log(e, On);
+  // console.log(ext_euclidean(On, e, On % e));
+  // console.log(ext_euclidean(50, 21, 50 % 21));
+
+  plainText = parseInt(plainText);
+  cipherTextField.value = Math.pow(plainText, e) % n;
+}
+
+function RsaDecrypt(plainText, cipherText, key) {
+  const p = parseInt(document.getElementById("p").value);
+  const q = parseInt(document.getElementById("q").value);
+  const n = p * q;
+
+  const { d } = genRsaKey(p, q);
+
+  console.log("d: ", d);
+  console.log("n: ", n);
+  // console.log(e, On);
+  // console.log(ext_euclidean(On, e, On % e));
+  // console.log(ext_euclidean(50, 21, 50 % 21));
+
+  cipherText = parseInt(cipherText);
+  plainTextField.value = Math.pow(cipherText, d) % n;
 }
 
 function Encrypt(plainText, cipherText, key) {
@@ -954,6 +1056,9 @@ function Encrypt(plainText, cipherText, key) {
       break;
     case "Aes":
       AesEncrypt(plainText, cipherText, key);
+      break;
+    case "Rsa":
+      RsaEncrypt(plainText, cipherText, key);
       break;
     default:
       console.log("nothing");
@@ -980,6 +1085,9 @@ function Decrypt(plainText, cipherText, key) {
     //   break;
     case "Des":
       DesDecrypt(plainText, cipherText, key);
+      break;
+    case "Rsa":
+      RsaDecrypt(plainText, cipherText, key);
       break;
     default:
       console.log("nothing");
