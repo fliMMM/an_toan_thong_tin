@@ -1034,6 +1034,34 @@ function RsaDecrypt(plainText, cipherText, key) {
   plainTextField.value = Math.pow(cipherText, d) % n;
 }
 
+// q = 353, alpha = 3, XA = 97, XB =233
+function HellmanEncrypt(plainText, cipherText, key) {
+  const q = parseInt(document.getElementById("q").value);
+  const alpha = parseInt(document.getElementById("alpha").value);
+  const XA = parseInt(document.getElementById("XA").value);
+  const XB = parseInt(document.getElementById("XB").value);
+
+  const YA = (alpha ** XA) % q;
+  const YB = (alpha ** XB) % q;
+
+  const KA = YB ** XA % q;
+  const KB = pow(YA, XB) % q;
+
+  console.log(q, alpha, XA, XB);
+  console.log(YA, YB);
+  console.log(KA);
+  console.log(KB);
+}
+
+function pow(x, y) {
+  let result = 1;
+  for (let i = 0; i < y; i++) {
+    result *= x;
+  }
+
+  return result;
+}
+
 function Encrypt(plainText, cipherText, key) {
   switch (types.value) {
     case "Caesar":
@@ -1059,6 +1087,9 @@ function Encrypt(plainText, cipherText, key) {
       break;
     case "Rsa":
       RsaEncrypt(plainText, cipherText, key);
+      break;
+    case "Hellman":
+      HellmanEncrypt(plainText, cipherText, key);
       break;
     default:
       console.log("nothing");
